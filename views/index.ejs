@@ -1,0 +1,27 @@
+
+<% include("partials/header") %>
+
+<h1>Hello</h1>
+
+<form class="" action="/" method="post">
+  <input type="text" name="title" value="" placeholder="Title">
+  <br><br>
+  <input type="text" name="author" value="" placeholder="Author">
+  <br><br>
+  <textarea name="text" rows="8" cols="80" placeholder="Your Text Here"></textarea>
+  <br><br>
+  <button type="submit" name="button">Submit</button>
+</form>
+
+
+<% posts.reverse().forEach(function(post){ %>
+  <a href="/<%= post.title %>">
+    <h1> <%= post.title %> </h1>
+  </a>
+
+  <p> Written By: <%= post.author %> </p>
+  <p> <%= post.text.slice(0, 200) + "..." %> </p>
+<% }) %>
+
+
+<% include("partials/footer") %>
