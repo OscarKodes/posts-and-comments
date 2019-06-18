@@ -20,13 +20,21 @@ app.use(bodyParser.urlencoded({extended: true}));
 mongoose.connect("mongodb://localhost:27017/postComDB", {useNewUrlParser: true, useFindAndModify: false});
 
 // Create new schema for posts
+const commentsSchema = {
+  author: String,
+  text: String
+}
+
 const postsSchema = {
   title: String,
   author: String,
   text: String,
+  comments: [commentsSchema]
 }
 
+
 // Create new model for posts
+const Comment = mongoose.model("Comment", commentsSchema);
 const Post = mongoose.model("Post", postsSchema);
 
 // Create some sample posts
@@ -69,9 +77,56 @@ app.get("/", function(req, res){
   });
 });
 
-app.get("/:postId", function(req, res){
+app.post("/", function(req, res){
+
+  const newPost = new Post ({
+    title: req.body.title,
+    author: req.body.author,
+    text: req.body.text,
+  });
+
+  newPost.save();
+  console.log("Post added.");
+
+  res.redirect("/");
+});
+
+
+app.post("/delete", function(req, res){
+  let postId = req.body.postId;
+
+  Post.findByIdAndRemove(postId, function(err){
+    if (err) {
+      console.log(err);
+    } else {
+      console.log("Post deleted.");
+      res.redirect("/");
+    }
+  });
+});
+
+
+app.post("/:postId", function(req, res){
 
   let postId = req.params.postId;
+
+  //check if we want to delete a comment
+  if (req.body.commentId !== undefined) {
+    let commentId = req.body.commentId;
+
+    Post.findOneAndUpdate(
+      {_id: postId},
+      {$pull: {comments: {_id: commentId}}},
+      {new: true},
+      function (err) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log("Comment deleted.");
+        }
+      }
+    );
+  };
 
   // find the post with the requested id
   Post.findById(postId, function(err, foundPost) {
@@ -79,22 +134,22 @@ app.get("/:postId", function(req, res){
       console.log(err);
     } else {
 
+      // check if we want to add a comment
+      if (req.body.author !== undefined) {
+
+        let newComment = new Comment ({
+          author: req.body.author,
+          text: req.body.text
+        });
+
+        foundPost.comments.push(newComment);
+        foundPost.save();
+        console.log("Comment added.");
+      }
+
       res.render("postPage", {post: foundPost});
     };
   });
-});
-
-app.post("/", function(req, res){
-
-  const newPost = new Post ({
-    title: req.body.title,
-    author: req.body.author,
-    text: req.body.text
-  });
-
-  newPost.save();
-
-  res.redirect("/");
 });
 
 

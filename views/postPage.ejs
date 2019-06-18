@@ -5,8 +5,49 @@
 
 <h1><%= post.title %></h1>
 
-<p>Written By: <%= post.author %></p>
+<h4>Written By: <%= post.author %></h4>
 
 <p> <%= post.text %> </p>
+
+<form class="" action="/delete" method="post">
+  <input type="hidden" name="postId" value="<%= post._id %>">
+  <button type="submit" name="">Delete this entire post and its comments.</button>
+</form>
+
+<br><br>
+<hr>
+<br><br>
+
+<h1>Comments</h1>
+<br>
+
+<form class="" action="/<%= post._id %>" method="post">
+  <input type="text" name="author" value="" placeholder="Enter Name Here" required>
+  <br><br>
+  <textarea name="text" rows="8" cols="80" placeholder="Enter Comment Here" required></textarea>
+  <br><br>
+  <button type="submit" name="button">Submit</button>
+</form>
+
+<br>
+<hr>
+
+<% if (post.comments.length > 0) { %>
+  <% post.comments.forEach(function(comment){ %>
+    <h4> <%= comment.author %> </h4>
+    <p> <%= comment.text %> </p>
+
+    <form class="" action="/<%= post._id %>" method="post">
+      <input type="hidden" name="commentId" value="<%= comment._id %>">
+      <button type="submit" name="button">Delete this comment</button>
+    </form>
+    <hr>
+
+  <% }); %>
+<% } else { %>
+  <h4>No comments have been submitted.</h4>
+<% } %>
+
+
 
 <% include("partials/footer") %>
