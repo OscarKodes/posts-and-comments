@@ -69,6 +69,21 @@ app.get("/", function(req, res){
   });
 });
 
+app.get("/:postId", function(req, res){
+
+  let postId = req.params.postId;
+
+  // find the post with the requested id
+  Post.findById(postId, function(err, foundPost) {
+    if (err) {
+      console.log(err);
+    } else {
+
+      res.render("postPage", {post: foundPost});
+    };
+  });
+});
+
 app.post("/", function(req, res){
 
   const newPost = new Post ({
